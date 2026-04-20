@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getTournamentById } from "../controllers/tournamentController";
+import { getTournamentById } from "../../controllers/tournamentController";
 import {
   addTeamToTournament,
   removeTeamFromTournament,
   updateTeam,
-} from "../controllers/teamController";
-import { generateTypedId } from "../utils/idGenerator";
-import Player from "../models/Player";
+} from "../../controllers/teamController";
+import { generateTypedId } from "../../utils/idGenerator";
+import Player from "../../models/Player";
 
 export default function TeamManager({ tournamentId, onTeamsUpdated }) {
   const [tournament, setTournament] = useState(null);

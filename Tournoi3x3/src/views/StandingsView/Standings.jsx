@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getTournamentById } from "../controllers/tournamentController";
-import { getPools } from "../controllers/poolController";
-import { getMatchesByTournament } from "../controllers/matchController";
-import { calculateStandings } from "../utils/standings";
+import { getTournamentById } from "../../controllers/tournamentController";
+import { getPools } from "../../controllers/tournamentController";
+import { getMatchesByTournament } from "../../controllers/matchController";
+import { calculateStandings } from "../../utils/standings";
 
 export default function Standings({ tournamentId }) {
   const [tournament, setTournament] = useState(null);

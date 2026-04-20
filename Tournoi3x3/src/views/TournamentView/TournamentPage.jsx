@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getTournamentById } from "../controllers/tournamentController";
+import { getTournamentById } from "../../controllers/tournamentController";
 
 import TournamentForm from "./TournamentForm";
-import TeamManager from "./TeamManager";
-import PoolGenerator from "./PoolGenerator";
-import MatchScheduler from "./MatchScheduler";
-import Standings from "./Standings";
-import PublicTournament from "./PublicTournament";
+import TeamManager from "../TeamView/TeamManager";
+import PoolGenerator from "../../utils/poolGenerator";
+import MatchScheduler from "../MatchView/MatchScheduler";
+import Standings from "../StandingsView/Standings";
+import PublicTournament from "../PublicView/PublicTournament";
 
 export default function TournamentPage({ tournamentId, onBack }) {
   const [tournament, setTournament] = useState(null);

@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { getTournamentById } from "../controllers/tournamentController";
-import { getPools } from "../controllers/poolController";
-import { generateMatches, scheduleMatches } from "../utils/matchGenerator";
-import { saveMatchesForTournament } from "../controllers/matchController";
+import { getTournamentById } from "../../controllers/tournamentController";
+import { getPools } from "../../controllers/poolController";
+import { generateMatches, scheduleMatches } from "../../utils/matchGenerator";
+import { saveMatchesForTournament } from "../../controllers/matchController";
 
 export default function MatchScheduler({ tournamentId }) {
   const [tournament, setTournament] = useState(null);
   const [pools, setPools] = useState([]);
   const [matches, setMatches] = useState([]);
   const [startTime, setStartTime] = useState("");
-  const [autoSchedule, setAutoSchedule] = useState(false);
 
   useEffect(() => {
     const t = getTournamentById(tournamentId);
-    setTournament(t);
+    setTournament(t || null);
 
-    const p = getPools(tournamentId);
+    const p = getPools(tournamentId) || [];
     setPools(p);
 
-    if (t?.matches) {
+    // Si tu stockes les matchs dans le tournoi
+    if (t && Array.isArray(t.matches)) {
       setMatches(t.matches);
     }
   }, [tournamentId]);
@@ -31,7 +31,12 @@ export default function MatchScheduler({ tournamentId }) {
 
     let allMatches = [];
 
-    pools.forEach(pool => {
+    pools.forEach((pool) => {
+      // ⚠️ Assure-toi que pool.teams existe
+      if (!pool.teams || pool.teams.length === 0) {
+        return;
+      }
+
       const poolMatches = generateMatches(pool.teams, pool.id);
       allMatches = [...allMatches, ...poolMatches];
     });
@@ -46,11 +51,18 @@ export default function MatchScheduler({ tournamentId }) {
       return;
     }
 
+    if (!tournament || !tournament.settings) {
+      alert("Paramètres du tournoi manquants (durée des matchs / pauses).");
+      return;
+    }
+
+    const { gameDuration, breakDuration } = tournament.settings;
+
     const scheduled = scheduleMatches(
       matches,
       startTime,
-      tournament.settings.gameDuration,
-      tournament.settings.breakDuration
+      gameDuration,
+      breakDuration
     );
 
     setMatches([...scheduled]);
@@ -84,7 +96,7 @@ export default function MatchScheduler({ tournamentId }) {
               <input
                 type="datetime-local"
                 value={startTime}
-                onChange={e => setStartTime(e.target.value)}
+                onChange={(e) => setStartTime(e.target.value)}
               />
 
               <button
@@ -98,14 +110,18 @@ export default function MatchScheduler({ tournamentId }) {
               <h3>📋 Liste des matchs ({matches.length})</h3>
 
               <ul className="match-list">
-                {matches.map(match => (
+                {matches.map((match) => (
                   <li key={match.id} className="match-item">
                     <strong>{match.teamA.name}</strong> vs{" "}
                     <strong>{match.teamB.name}</strong>
                     {match.startTime && (
                       <span>
                         {" "}
-                        — {new Date(match.startTime).toLocaleTimeString()}
+                        —{" "}
+                        {new Date(match.startTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
                     )}
                   </li>

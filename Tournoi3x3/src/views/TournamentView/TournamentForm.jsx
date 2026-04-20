@@ -3,7 +3,7 @@ import {
   createTournament,
   updateTournament,
   getTournamentById,
-} from "../controllers/tournamentController";
+} from "../../controllers/tournamentController";
 
 export default function TournamentForm({ tournamentId = null, onSaved }) {
   const isEditing = Boolean(tournamentId);
