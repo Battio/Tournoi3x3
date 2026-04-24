@@ -5,7 +5,7 @@ import TournamentPage from "./views/TournamentView/TournamentPage";
 import TournamentForm from "./views/TournamentView/TournamentForm";
 
 export default function App() {
-  const [currentView, setCurrentView] = useState("list"); // list | create | tournament
+  const [currentView, setCurrentView] = useState("list");
   const [selectedTournamentId, setSelectedTournamentId] = useState(null);
 
   const openTournament = (id) => {
@@ -14,6 +14,7 @@ export default function App() {
   };
 
   const openCreateTournament = () => {
+    setSelectedTournamentId(null);
     setCurrentView("create");
   };
 
@@ -24,6 +25,9 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <h1>Tournoi 3x3</h1>
+      <p>Bienvenue sur l’application !</p>
+
       {currentView === "list" && (
         <TournamentList
           onSelectTournament={openTournament}
@@ -32,12 +36,10 @@ export default function App() {
       )}
 
       {currentView === "create" && (
-        <TournamentForm
-          onSaved={goBackToList}
-        />
+        <TournamentForm onSaved={goBackToList} />
       )}
 
-      {currentView === "tournament" && selectedTournamentId && (
+      {currentView === "tournament" && selectedTournamentId !== null && (
         <TournamentPage
           tournamentId={selectedTournamentId}
           onBack={goBackToList}

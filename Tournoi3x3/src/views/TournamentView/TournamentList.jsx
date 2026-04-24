@@ -6,10 +6,18 @@ import {
 
 export default function TournamentList({ onSelectTournament, onCreateTournament }) {
   const [tournaments, setTournaments] = useState([]);
+  const [error, setError] = useState("");
 
   const refresh = () => {
-    const list = getAllTournaments();
-    setTournaments(list);
+    try {
+      const list = getAllTournaments();
+      setTournaments(Array.isArray(list) ? list : []);
+      setError("");
+    } catch (err) {
+      console.error("Erreur lors du chargement des tournois :", err);
+      setError("Impossible de charger les tournois.");
+      setTournaments([]);
+    }
   };
 
   useEffect(() => {
@@ -19,19 +27,26 @@ export default function TournamentList({ onSelectTournament, onCreateTournament 
   const handleDelete = (id) => {
     if (!window.confirm("Supprimer ce tournoi ?")) return;
 
-    deleteTournament(id);
-    refresh();
+    try {
+      deleteTournament(id);
+      refresh();
+    } catch (err) {
+      console.error("Erreur lors de la suppression :", err);
+      setError("Impossible de supprimer ce tournoi.");
+    }
   };
 
   return (
     <div className="tournament-list">
-      <h2>🏆 Liste des tournois</h2>
+      <h2>Liste des tournois</h2>
 
       <button className="btn-primary" onClick={onCreateTournament}>
-        ➕ Créer un tournoi
+        Créer un tournoi
       </button>
 
-      {tournaments.length === 0 && (
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {tournaments.length === 0 && !error && (
         <p>Aucun tournoi pour le moment.</p>
       )}
 
@@ -41,11 +56,13 @@ export default function TournamentList({ onSelectTournament, onCreateTournament 
             <h3>{tournament.name}</h3>
 
             <p>
-              📅 {new Date(tournament.date).toLocaleDateString()}  
+              {tournament.date
+                ? new Date(tournament.date).toLocaleDateString()
+                : "Date non renseignée"}
               <br />
-              📍 {tournament.location}
+              {tournament.location || "Lieu non renseigné"}
               <br />
-              🎯 {tournament.category}
+              {tournament.category || "Catégorie non renseignée"}
             </p>
 
             <div className="actions">

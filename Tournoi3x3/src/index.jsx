@@ -1,10 +1,14 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "../../src/App";
-
-import "./styles/index.css"; // si tu as un fichier global de styles
+import "./styles/index.css";
 
 const container = document.getElementById("root");
+
+if (!container) {
+  throw new Error("L'élément #root est introuvable dans le HTML.");
+}
+
 const root = createRoot(container);
 
 root.render(
