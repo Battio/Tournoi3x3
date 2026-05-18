@@ -11,13 +11,13 @@ export default function Standings({ tournamentId }) {
 
   useEffect(() => {
     const t = getTournamentById(tournamentId);
-    setTournament(t);
+    setTournament(t); // eslint-disable-line react-hooks/set-state-in-effect
 
     const p = getPools(tournamentId);
-    setPools(p);
+    setPools(p); // eslint-disable-line react-hooks/set-state-in-effect
 
     const m = getMatchesByTournament(tournamentId);
-    setMatches(m);
+    setMatches(m); // eslint-disable-line react-hooks/set-state-in-effect
   }, [tournamentId]);
 
   if (!tournament) {

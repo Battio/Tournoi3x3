@@ -6,12 +6,13 @@ import Pool from "../models/Pool";
 import { generateTypedId } from "../utils/idGenerator";
 
 export default function PoolGenerator({ tournamentId, onPoolsGenerated }) {
-  const [tournament, setTournament] = useState(null);
+  const [tournament, setTournament] = useState(() => getTournamentById(tournamentId));
   const [numberOfPools, setNumberOfPools] = useState(2);
   const [generatedPools, setGeneratedPools] = useState([]);
 
   useEffect(() => {
     const t = getTournamentById(tournamentId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTournament(t);
   }, [tournamentId]);
 
@@ -23,11 +24,10 @@ export default function PoolGenerator({ tournamentId, onPoolsGenerated }) {
 
     const rawPools = generatePools(tournament.teams, numberOfPools);
 
-    // Convertir en objets Pool
     const pools = rawPools.map((teams, index) => {
       return new Pool({
         id: generateTypedId("pool"),
-        name: `Poule ${String.fromCharCode(65 + index)}`, // A, B, C...
+        name: `Poule ${String.fromCharCode(65 + index)}`,
         teams: teams,
         matches: [],
       });

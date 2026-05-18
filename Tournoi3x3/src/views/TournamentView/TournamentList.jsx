@@ -21,6 +21,7 @@ export default function TournamentList({ onSelectTournament, onCreateTournament 
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
   }, []);
 

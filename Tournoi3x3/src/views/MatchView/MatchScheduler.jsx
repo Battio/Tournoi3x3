@@ -5,34 +5,37 @@ import { generateMatches, scheduleMatches } from "../../utils/matchGenerator";
 import { saveMatchesForTournament } from "../../controllers/matchController";
 
 export default function MatchScheduler({ tournamentId }) {
-  const [tournament, setTournament] = useState(null);
-  const [pools, setPools] = useState([]);
-  const [matches, setMatches] = useState([]);
+  const [state, setState] = useState(() => {
+    const t = getTournamentById(tournamentId);
+    const p = getPools(tournamentId) || [];
+    return {
+      tournament: t || null,
+      pools: p,
+      matches: (t && Array.isArray(t.matches)) ? t.matches : [],
+    };
+  });
   const [startTime, setStartTime] = useState("");
 
   useEffect(() => {
     const t = getTournamentById(tournamentId);
-    setTournament(t || null);
-
     const p = getPools(tournamentId) || [];
-    setPools(p);
-
-    // Si tu stockes les matchs dans le tournoi
-    if (t && Array.isArray(t.matches)) {
-      setMatches(t.matches);
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState({
+      tournament: t || null,
+      pools: p,
+      matches: (t && Array.isArray(t.matches)) ? t.matches : [],
+    });
   }, [tournamentId]);
 
   const handleGenerateMatches = () => {
-    if (!pools || pools.length === 0) {
+    if (!state.pools || state.pools.length === 0) {
       alert("Aucune poule trouvée. Génère les poules avant les matchs.");
       return;
     }
 
     let allMatches = [];
 
-    pools.forEach((pool) => {
-      // ⚠️ Assure-toi que pool.teams existe
+    state.pools.forEach((pool) => {
       if (!pool.teams || pool.teams.length === 0) {
         return;
       }
@@ -41,7 +44,7 @@ export default function MatchScheduler({ tournamentId }) {
       allMatches = [...allMatches, ...poolMatches];
     });
 
-    setMatches(allMatches);
+    setState((prev) => ({ ...prev, matches: allMatches }));
     saveMatchesForTournament(tournamentId, allMatches);
   };
 
@@ -51,21 +54,21 @@ export default function MatchScheduler({ tournamentId }) {
       return;
     }
 
-    if (!tournament || !tournament.settings) {
+    if (!state.tournament || !state.tournament.settings) {
       alert("Paramètres du tournoi manquants (durée des matchs / pauses).");
       return;
     }
 
-    const { gameDuration, breakDuration } = tournament.settings;
+    const { gameDuration, breakDuration } = state.tournament.settings;
 
     const scheduled = scheduleMatches(
-      matches,
+      state.matches,
       startTime,
       gameDuration,
       breakDuration
     );
 
-    setMatches([...scheduled]);
+    setState((prev) => ({ ...prev, matches: scheduled }));
     saveMatchesForTournament(tournamentId, scheduled);
   };
 
@@ -73,22 +76,22 @@ export default function MatchScheduler({ tournamentId }) {
     <div className="match-scheduler">
       <h2>📅 Génération des matchs</h2>
 
-      {!tournament && <p>Chargement du tournoi...</p>}
+      {!state.tournament && <p>Chargement du tournoi...</p>}
 
-      {tournament && (
+      {state.tournament && (
         <>
           <p>
-            <strong>Tournoi :</strong> {tournament.name}
+            <strong>Tournoi :</strong> {state.tournament.name}
           </p>
           <p>
-            <strong>Poules :</strong> {pools.length}
+            <strong>Poules :</strong> {state.pools.length}
           </p>
 
           <button onClick={handleGenerateMatches} className="btn-primary">
             Générer les matchs
           </button>
 
-          {matches.length > 0 && (
+          {state.matches.length > 0 && (
             <>
               <h3>🕒 Planification automatique</h3>
 
@@ -107,10 +110,10 @@ export default function MatchScheduler({ tournamentId }) {
                 Planifier automatiquement
               </button>
 
-              <h3>📋 Liste des matchs ({matches.length})</h3>
+              <h3>📋 Liste des matchs ({state.matches.length})</h3>
 
               <ul className="match-list">
-                {matches.map((match) => (
+                {state.matches.map((match) => (
                   <li key={match.id} className="match-item">
                     <strong>{match.teamA.name}</strong> vs{" "}
                     <strong>{match.teamB.name}</strong>

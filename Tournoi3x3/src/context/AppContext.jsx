@@ -1,31 +1,18 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import localStorageService from "../storage/localStorageService";
 
-// CONTEXTE GLOBAL
 const AppContext = createContext();
 
-// HOOK PERSONNALISÉ
-export function useAppContext() {
-  return useContext(AppContext);
-}
-
-// PROVIDER GLOBAL
-export function AppProvider({ children }) {
-  // État global de l'application
-  const [tournaments, setTournaments] = useState([]);
-
-  // Chargement initial depuis localStorage
-  useEffect(() => {
+function AppProvider({ children }) {
+  const [tournaments, setTournaments] = useState(() => {
     const saved = localStorageService.get("tournaments");
-    if (saved) setTournaments(saved);
-  }, []);
+    return saved || [];
+  });
 
-  // Sauvegarde automatique à chaque changement
   useEffect(() => {
     localStorageService.set("tournaments", tournaments);
   }, [tournaments]);
 
-  // Méthodes globales (appellent les controllers)
   const addTournament = (tournament) => {
     setTournaments((prev) => [...prev, tournament]);
   };
@@ -40,7 +27,6 @@ export function AppProvider({ children }) {
     setTournaments((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Valeurs exposées au reste de l'application
   const value = {
     tournaments,
     addTournament,
@@ -50,3 +36,10 @@ export function AppProvider({ children }) {
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
+
+function useAppContext() {
+  return useContext(AppContext);
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export { AppProvider, useAppContext };

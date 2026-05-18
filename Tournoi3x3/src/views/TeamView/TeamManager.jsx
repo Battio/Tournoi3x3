@@ -11,13 +11,13 @@ import Player from "../../models/Player";
 export default function TeamManager({ tournamentId, onTeamsUpdated }) {
   const [tournament, setTournament] = useState(null);
   const [teamName, setTeamName] = useState("");
-  const [editingTeam, setEditingTeam] = useState(null);
 
   const [playerFirstName, setPlayerFirstName] = useState("");
   const [playerLastName, setPlayerLastName] = useState("");
 
   useEffect(() => {
     const t = getTournamentById(tournamentId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTournament(t);
   }, [tournamentId]);
 

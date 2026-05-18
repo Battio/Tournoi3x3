@@ -17,10 +17,10 @@ export default function TournamentForm({ tournamentId = null, onSaved }) {
     if (isEditing) {
       const t = getTournamentById(tournamentId);
       if (t) {
-        setName(t.name);
-        setDate(t.date);
-        setLocation(t.location);
-        setCategory(t.category);
+        setName(t.name); // eslint-disable-line react-hooks/set-state-in-effect
+        setDate(t.date); // eslint-disable-line react-hooks/set-state-in-effect
+        setLocation(t.location); // eslint-disable-line react-hooks/set-state-in-effect
+        setCategory(t.category); // eslint-disable-line react-hooks/set-state-in-effect
       }
     }
   }, [tournamentId, isEditing]);

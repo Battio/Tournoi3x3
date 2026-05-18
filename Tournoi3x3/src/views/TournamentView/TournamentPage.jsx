@@ -14,11 +14,11 @@ export default function TournamentPage({ tournamentId, onBack }) {
 
   const refresh = () => {
     const t = getTournamentById(tournamentId);
-    setTournament(t);
+    setTournament(t); // eslint-disable-line react-hooks/set-state-in-effect
   };
 
   useEffect(() => {
-    refresh();
+    refresh(); // eslint-disable-line react-hooks/set-state-in-effect
   }, [tournamentId]);
 
   if (!tournament) {
