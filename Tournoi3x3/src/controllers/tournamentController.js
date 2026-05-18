@@ -1,4 +1,7 @@
 import localStorageService from "../storage/localStorageService";
+import Settings from "../models/Settings";
+import { validateTournamentReady } from "../utils/TournamentValidator";
+import { isValidTournamentType } from "../models/TournamentType";
 
 /**
  * Récupère tous les tournois depuis le stockage local
@@ -16,20 +19,35 @@ function saveTournaments(tournaments) {
 
 /**
  * Crée un nouveau tournoi
+ * Retourne { success: boolean, tournament?: Tournament, error?: string }
  */
 export function createTournament(tournament) {
   const tournaments = getAllTournaments();
 
-  tournaments.push({
+  // Valider le type de tournoi
+  if (!isValidTournamentType(tournament.tournamentType)) {
+    return { 
+      success: false, 
+      error: `Type de tournoi invalide: ${tournament.tournamentType}` 
+    };
+  }
+
+  // Créer Settings par défaut si non fourni
+  const settings = tournament.settings || 
+    Settings.createForTournamentType(tournament.tournamentType);
+
+  const newTournament = {
     ...tournament,
+    tournamentType: tournament.tournamentType || "official",
     teams: [],
     pools: [],
     matches: [],
-    settings: tournament.settings || {},
-  });
+    settings,
+  };
 
+  tournaments.push(newTournament);
   saveTournaments(tournaments);
-  return tournament;
+  return { success: true, tournament: newTournament };
 }
 
 /**
@@ -74,6 +92,19 @@ export function getTournaments() {
 }
 
 /**
+ * Valide qu'un tournoi est prêt à démarrer
+ * Retourne { valid: boolean, errors: string[] }
+ */
+export function validateTournament(tournamentId) {
+  const tournament = getTournamentById(tournamentId);
+  if (!tournament) {
+    return { valid: false, errors: ["Tournoi non trouvé"] };
+  }
+  
+  return validateTournamentReady(tournament);
+}
+
+/**
  * Réinitialise complètement un tournoi :
  * - équipes
  * - poules
@@ -106,6 +137,7 @@ export function updateTournamentInfo(tournamentId, info) {
   tournament.date = info.date ?? tournament.date;
   tournament.location = info.location ?? tournament.location;
   tournament.category = info.category ?? tournament.category;
+  tournament.tournamentType = info.tournamentType ?? tournament.tournamentType;
 
   saveTournaments(tournaments);
   return tournament;

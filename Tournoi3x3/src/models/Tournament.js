@@ -7,6 +7,7 @@ export default class Tournament {
     date,
     location,
     category,
+    tournamentType = "official", // "official" | "mixed" | "family"
     teams = [],
     pools = [],
     matches = [],
@@ -17,6 +18,7 @@ export default class Tournament {
     this.date = date;
     this.location = location;
     this.category = category;
+    this.tournamentType = tournamentType;
 
     // Collections
     this.teams = teams;       // liste d'équipes
