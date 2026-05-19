@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import TournamentList from "./views/TournamentView/TournamentList";
-import TournamentPage from "./views/TournamentView/TournamentPage";
-import TournamentForm from "./views/TournamentView/TournamentForm";
+import TournamentList from "../../tournoi3x3/src/views/TournamentView/TournamentList";
+import TournamentPage from "../../tournoi3x3/src/views/TournamentView/TournamentPage";
+import TournamentForm from "../../tournoi3x3/src/views/TournamentView/TournamentForm";
 
 export default function App() {
   const [currentView, setCurrentView] = useState("list");
