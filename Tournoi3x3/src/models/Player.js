@@ -6,6 +6,7 @@ export default class Player {
     number = null,       // numéro de maillot (optionnel)
     age = null,          // optionnel
     position = null,     // optionnel (utile si tu veux : guard, forward…)
+    gender = "M",        // genre : "M", "F", "Other" (défaut: "M")
   }) {
     this.id = id;
     this.firstName = firstName;
@@ -15,6 +16,7 @@ export default class Player {
     this.number = number;
     this.age = age;
     this.position = position;
+    this.gender = gender;
   }
 
   /**

@@ -1,4 +1,5 @@
 import localStorageService from "../storage/localStorageService";
+import { validateTeamForTournamentType } from "../utils/TournamentValidator";
 
 /**
  * Récupère tous les tournois depuis le stockage local
@@ -16,34 +17,47 @@ function saveTournaments(tournaments) {
 
 /**
  * Ajoute une équipe à un tournoi
+ * Retourne { success: boolean, team?: Team, error?: string }
  */
 export function addTeam(tournamentId, team) {
   const tournaments = getAllTournaments();
   const tournament = tournaments.find(t => t.id === tournamentId);
 
-  if (!tournament) return null;
+  if (!tournament) return { success: false, error: "Tournoi non trouvé" };
+
+  // Valider l'équipe selon le type de tournoi
+  const validation = validateTeamForTournamentType(team, tournament.tournamentType);
+  if (!validation.valid) {
+    return { success: false, error: validation.error };
+  }
 
   tournament.teams.push(team);
-
   saveTournaments(tournaments);
-  return team;
+  return { success: true, team };
 }
 
 /**
  * Met à jour une équipe
+ * Retourne { success: boolean, team?: Team, error?: string }
  */
 export function updateTeam(tournamentId, updatedTeam) {
   const tournaments = getAllTournaments();
   const tournament = tournaments.find(t => t.id === tournamentId);
 
-  if (!tournament) return null;
+  if (!tournament) return { success: false, error: "Tournoi non trouvé" };
+
+  // Valider l'équipe mise à jour selon le type de tournoi
+  const validation = validateTeamForTournamentType(updatedTeam, tournament.tournamentType);
+  if (!validation.valid) {
+    return { success: false, error: validation.error };
+  }
 
   tournament.teams = tournament.teams.map(team =>
     team.id === updatedTeam.id ? updatedTeam : team
   );
 
   saveTournaments(tournaments);
-  return updatedTeam;
+  return { success: true, team: updatedTeam };
 }
 
 /**
@@ -107,3 +121,7 @@ export function clearTeams(tournamentId) {
   saveTournaments(tournaments);
   return true;
 }
+
+// Aliases pour compatibilité avec les vues
+export const addTeamToTournament = addTeam;
+export const removeTeamFromTournament = deleteTeam;

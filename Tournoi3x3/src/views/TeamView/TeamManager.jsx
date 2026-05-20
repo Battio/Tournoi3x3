@@ -7,6 +7,7 @@ import {
 } from "../../controllers/teamController";
 import { generateTypedId } from "../../utils/idGenerator";
 import Player from "../../models/Player";
+import { TOURNAMENT_TYPE_CONFIG } from "../../models/TournamentType";
 
 export default function TeamManager({ tournamentId, onTeamsUpdated }) {
   const [tournament, setTournament] = useState(null);
@@ -14,6 +15,8 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
 
   const [playerFirstName, setPlayerFirstName] = useState("");
   const [playerLastName, setPlayerLastName] = useState("");
+  const [playerGender, setPlayerGender] = useState("M");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const t = getTournamentById(tournamentId);
@@ -22,8 +25,9 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
   }, [tournamentId]);
 
   const handleAddTeam = () => {
+    setError("");
     if (!teamName.trim()) {
-      alert("Le nom de l'équipe est obligatoire.");
+      setError("Le nom de l'équipe est obligatoire.");
       return;
     }
 
@@ -33,7 +37,11 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
       players: [],
     };
 
-    addTeamToTournament(tournamentId, newTeam);
+    const result = addTeamToTournament(tournamentId, newTeam);
+    if (result && !result.success) {
+      setError(result.error);
+      return;
+    }
     setTeamName("");
 
     if (onTeamsUpdated) onTeamsUpdated();
@@ -48,8 +56,9 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
   };
 
   const handleAddPlayer = (team) => {
+    setError("");
     if (!playerFirstName.trim() || !playerLastName.trim()) {
-      alert("Prénom et nom du joueur obligatoires.");
+      setError("Prénom et nom du joueur obligatoires.");
       return;
     }
 
@@ -57,6 +66,7 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
       id: generateTypedId("player"),
       firstName: playerFirstName.trim(),
       lastName: playerLastName.trim(),
+      gender: playerGender,
     });
 
     const updatedTeam = {
@@ -64,10 +74,15 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
       players: [...team.players, newPlayer],
     };
 
-    updateTeam(tournamentId, updatedTeam);
+    const result = updateTeam(tournamentId, updatedTeam);
+    if (result && !result.success) {
+      setError(result.error);
+      return;
+    }
 
     setPlayerFirstName("");
     setPlayerLastName("");
+    setPlayerGender("M");
 
     if (onTeamsUpdated) onTeamsUpdated();
   };
@@ -83,14 +98,25 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
     if (onTeamsUpdated) onTeamsUpdated();
   };
 
+  const typeConfig = tournament ? TOURNAMENT_TYPE_CONFIG[tournament.tournamentType] : null;
+
   return (
     <div className="team-manager">
       <h2>👥 Gestion des équipes</h2>
+
+      {error && <div className="alert alert-error">{error}</div>}
 
       {!tournament && <p>Chargement...</p>}
 
       {tournament && (
         <>
+          <div className="tournament-info">
+            <small>
+              Type: <strong>{typeConfig?.name}</strong>
+              {typeConfig?.requireGenderValidation && " | Validation du genre activée"}
+            </small>
+          </div>
+
           <div className="add-team">
             <h3>➕ Ajouter une équipe</h3>
             <input
@@ -124,6 +150,9 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
                   {team.players.map((player) => (
                     <li key={player.id} className="player-item">
                       {player.firstName} {player.lastName}
+                      <span className="player-gender" title="Genre">
+                        {player.gender === "M" ? "♂️" : player.gender === "F" ? "♀️" : "⚪"}
+                      </span>
                       <button
                         className="btn-small-danger"
                         onClick={() => handleRemovePlayer(team, player.id)}
@@ -147,6 +176,15 @@ export default function TeamManager({ tournamentId, onTeamsUpdated }) {
                     value={playerLastName}
                     onChange={(e) => setPlayerLastName(e.target.value)}
                   />
+                  <select
+                    value={playerGender}
+                    onChange={(e) => setPlayerGender(e.target.value)}
+                    title="Genre du joueur"
+                  >
+                    <option value="M">Homme</option>
+                    <option value="F">Femme</option>
+                    <option value="Other">Autre</option>
+                  </select>
                   <button
                     className="btn-secondary"
                     onClick={() => handleAddPlayer(team)}

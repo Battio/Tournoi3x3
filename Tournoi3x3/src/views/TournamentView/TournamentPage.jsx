@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getTournamentById } from "../../controllers/tournamentController";
+import { getTournamentById, validateTournament } from "../../controllers/tournamentController";
+import { TOURNAMENT_TYPE_CONFIG } from "../../models/TournamentType";
 
 import TournamentForm from "./TournamentForm";
 import TeamManager from "../TeamView/TeamManager";
@@ -38,6 +39,17 @@ export default function TournamentPage({ tournamentId, onBack }) {
           📅 {new Date(tournament.date).toLocaleDateString()} — 📍{" "}
           {tournament.location}
         </p>
+
+        <div className="tournament-header-info">
+          <span className="badge" style={{ backgroundColor: TOURNAMENT_TYPE_CONFIG[tournament.tournamentType]?.color || "#ccc" }}>
+            {TOURNAMENT_TYPE_CONFIG[tournament.tournamentType]?.name}
+          </span>
+          <span className="info-text">
+            {tournament.teams?.length || 0} équipes
+            {tournament.pools?.length > 0 && ` • ${tournament.pools.length} poules`}
+            {tournament.matches?.length > 0 && ` • ${tournament.matches.length} matchs`}
+          </span>
+        </div>
       </header>
 
       {/* Onglets */}
