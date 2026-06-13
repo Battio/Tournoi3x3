@@ -37,9 +37,9 @@ export function createMatchesForPool(tournamentId, poolIndex) {
 }
 
 /**
- * Met à jour le score d'un match
+ * Met à jour le score d'un match de poule
  */
-export function updateMatchScore(tournamentId, matchId, scoreA, scoreB) {
+export function updateMatchScore(tournamentId, matchId, scoreA, scoreB, overtime = false) {
   const tournaments = getAllTournaments();
   const tournament = tournaments.find(t => t.id === tournamentId);
 
@@ -50,13 +50,36 @@ export function updateMatchScore(tournamentId, matchId, scoreA, scoreB) {
 
   match.scoreA = scoreA;
   match.scoreB = scoreB;
+  match.overtime = overtime;
+  match.forfeitTeam = null; // on retire un éventuel forfait si on saisit un score manuel
 
-  // Gestion prolongation 3x3 : première équipe à 2 points d'écart
-  if (scoreA === scoreB) {
-    match.overtime = true;
+  saveTournaments(tournaments);
+  return match;
+}
+
+/**
+ * Déclare le forfait d'une équipe (score 0-21 ou 21-0, 0 pt au classement)
+ * @param {string} forfeitSide - "A" ou "B" selon quelle équipe déclare forfait
+ */
+export function setForfeit(tournamentId, matchId, forfeitSide) {
+  const tournaments = getAllTournaments();
+  const tournament = tournaments.find(t => t.id === tournamentId);
+
+  if (!tournament) return null;
+
+  const match = tournament.matches.find(m => m.id === matchId);
+  if (!match) return null;
+
+  if (forfeitSide === "A") {
+    match.scoreA = 0;
+    match.scoreB = 21;
+    match.forfeitTeam = match.teamA?.id || null;
   } else {
-    match.overtime = false;
+    match.scoreA = 21;
+    match.scoreB = 0;
+    match.forfeitTeam = match.teamB?.id || null;
   }
+  match.overtime = false;
 
   saveTournaments(tournaments);
   return match;
@@ -81,6 +104,26 @@ export function getMatchById(tournamentId, matchId) {
 
   return tournament.matches.find(m => m.id === matchId) || null;
 }
+
+/**
+ * Sauvegarde directement une liste de matchs pour un tournoi
+ */
+export function saveMatchesForTournament(tournamentId, matches) {
+  const tournaments = getAllTournaments();
+  const tournament = tournaments.find(t => t.id === tournamentId);
+
+  if (!tournament) return null;
+
+  tournament.matches = matches;
+
+  saveTournaments(tournaments);
+  return matches;
+}
+
+/**
+ * Alias pour getMatches
+ */
+export const getMatchesByTournament = getMatches;
 
 /**
  * Supprime un match

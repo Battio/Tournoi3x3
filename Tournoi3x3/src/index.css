@@ -1,111 +1,1699 @@
+/* ============================================================
+   Variables & Reset
+   ============================================================ */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  --orange:     #f97316;
+  --orange-dark:#ea580c;
+  --orange-light:#fff7ed;
+  --navy:       #1e293b;
+  --navy-light: #334155;
+  --bg:         #f8fafc;
+  --surface:    #ffffff;
+  --border:     #e2e8f0;
+  --text:       #334155;
+  --text-muted: #64748b;
+  --text-head:  #0f172a;
+  --danger:     #ef4444;
+  --danger-bg:  #fef2f2;
+  --success:    #22c55e;
+  --radius:     10px;
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.08);
+  --shadow:     0 4px 16px rgba(0,0,0,.1);
+  --transition: 0.18s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  margin: 0;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4, h5 {
+  color: var(--text-head);
+  line-height: 1.25;
+}
+
+h1 { font-size: 1.8rem; font-weight: 700; }
+h2 { font-size: 1.3rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+h4 { font-size: .95rem; font-weight: 600; }
+h5 { font-size: .85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+
+input, select, button, textarea {
+  font: inherit;
+}
+
+ul { list-style: none; }
+
+/* ============================================================
+   Layout
+   ============================================================ */
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
+.app-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+  width: 100%;
+}
+
+.app-container > h1 {
+  text-align: center;
+  padding: 28px 0 4px;
+  font-size: 2rem;
+  color: var(--orange);
+  letter-spacing: -.5px;
+}
+
+.app-container > p {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-small-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
   font-weight: 500;
-  color: var(--text-h);
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  padding: 9px 18px;
+  font-size: .9rem;
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+
+.btn-primary {
+  background: var(--orange);
+  color: #fff;
 }
-p {
+.btn-primary:hover { background: var(--orange-dark); box-shadow: 0 2px 8px rgba(249,115,22,.35); }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--navy);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { background: var(--bg); border-color: var(--navy-light); }
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1.5px solid #fca5a5;
+}
+.btn-danger:hover { background: #fee2e2; }
+
+.btn-small-danger {
+  padding: 2px 8px;
+  font-size: .8rem;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+}
+.btn-small-danger:hover { background: var(--danger-bg); }
+
+button:active { transform: scale(.97); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ============================================================
+   Form controls
+   ============================================================ */
+input[type="text"],
+input[type="date"],
+input[type="number"],
+input[type="datetime-local"],
+select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-head);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(249,115,22,.15);
+}
+
+label {
+  display: block;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  margin-top: 14px;
+}
+
+label:first-child { margin-top: 0; }
+
+.help-text {
+  display: block;
+  font-size: .78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ============================================================
+   Alert
+   ============================================================ */
+.alert {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: .9rem;
+  margin-bottom: 16px;
+}
+
+.alert-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid #fca5a5;
+}
+
+/* ============================================================
+   Tournament List
+   ============================================================ */
+.tournament-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tournament-list > h2 {
+  font-size: 1.4rem;
+}
+
+.tournaments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.tournament-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.tournament-card:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--orange);
+}
+
+.tournament-card h3 {
+  font-size: 1.05rem;
+  color: var(--text-head);
+}
+
+.tournament-card p {
+  font-size: .85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.tournament-card .actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+/* ============================================================
+   Tournament Page
+   ============================================================ */
+.tournament-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.page-header {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-header h1 {
+  color: #fff;
+  font-size: 1.5rem;
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+.page-header p {
+  color: #94a3b8;
+  font-size: .88rem;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.page-header .btn-secondary {
+  align-self: flex-start;
+  margin-bottom: 4px;
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.2);
+  color: #fff;
+  font-size: .82rem;
+  padding: 6px 12px;
+}
+
+.page-header .btn-secondary:hover {
+  background: rgba(255,255,255,.18);
+}
+
+.tournament-header-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.info-text {
+  font-size: .85rem;
+  color: #94a3b8;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 0;
+}
+
+.tabs button {
+  padding: 9px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: .88rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  border-radius: 6px 6px 0 0;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.tabs button:hover {
+  color: var(--text-head);
+  background: var(--bg);
+}
+
+.tabs button.active {
+  color: var(--orange);
+  border-bottom-color: var(--orange);
+  font-weight: 600;
+}
+
+.tab-content {
+  padding: 4px 0;
+}
+
+/* ============================================================
+   Tournament Form
+   ============================================================ */
+.tournament-form {
+  max-width: 520px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form button[type="submit"] {
+  margin-top: 20px;
+}
+
+.tournament-info {
+  background: var(--orange-light);
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: .85rem;
+  color: var(--orange-dark);
+  margin-bottom: 4px;
+}
+
+.teams-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* ============================================================
+   Team Manager — registration form
+   ============================================================ */
+.team-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.team-registration-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.team-registration-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--border);
+  color: var(--text-head);
+}
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.form-group label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin: 0;
+}
+
+.form-row {
+  display: flex;
+  gap: 14px;
+}
+
+.form-group--small {
+  max-width: 160px;
+}
+
+.form-actions {
+  padding-top: 6px;
+}
+
+/* Teams section */
+.teams-section h3 {
+  font-size: 1rem;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: .9rem;
+  padding: 20px;
+  text-align: center;
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+}
+
+.team-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.team-card:hover {
+  box-shadow: var(--shadow);
+  border-color: #cbd5e1;
+}
+
+.team-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.team-card-header h4 {
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.players-count-badge {
+  display: inline-block;
+  font-size: .76rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.players-count-badge.full {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.players-count-badge.partial {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+/* Player list inside card */
+.players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: .88rem;
+}
+
+.captain-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  font-size: .7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.player-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text-head);
+}
+
+.player-gender-icon {
+  color: var(--text-muted);
+  font-size: .85rem;
+}
+
+/* Add player inline form */
+.add-player-form {
+  border-top: 1.5px solid var(--border);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-player-form .form-row {
+  gap: 8px;
+}
+
+.add-player-form input,
+.add-player-form select {
+  flex: 1;
+  min-width: 80px;
+}
+
+.add-player-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Add player trigger button */
+.btn-add-player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px;
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+
+.btn-add-player:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: var(--orange-light);
+}
+
+/* ============================================================
+   Pool Generator
+   ============================================================ */
+.pool-generator {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pool-generator label {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.pool-generator input[type="number"] {
+  width: 80px;
+  display: inline-block;
+}
+
+.pools-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.pool-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.pool-card h4 {
+  color: var(--orange);
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.pool-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pool-card li {
+  padding: 4px 0;
+  font-size: .9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.pool-card li:last-child { border-bottom: none; }
+
+/* ============================================================
+   Match Scheduler
+   ============================================================ */
+.match-scheduler {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.scheduler-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.scheduler-info {
+  font-size: .85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Courts grid — 2 columns */
+.courts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.court-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.court-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--navy);
+  border-radius: 12px;
+  color: #fff;
+}
+
+.court-icon {
+  font-size: 1.4rem;
+}
+
+.court-header h3 {
+  color: #fff;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.court-pool {
+  font-size: .8rem;
+  color: #94a3b8;
+  display: block;
+  margin-top: 1px;
+}
+
+/* Match cards */
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition);
+}
+
+.match-card--done {
+  border-left: 3px solid var(--success);
+}
+
+.match-time {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--orange);
+  letter-spacing: .03em;
+}
+
+.match-score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.match-team {
+  flex: 1;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text-head);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.match-team--right {
+  text-align: right;
+}
+
+.score-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.score-box {
+  width: 48px !important;
+  padding: 5px 4px !important;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-head);
+  border-radius: 8px !important;
+}
+
+.score-sep {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0 2px;
+}
+
+.match-save-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-save-score {
+  padding: 5px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.btn-save-score:hover {
+  background: var(--orange);
+  color: #fff;
+  border-color: var(--orange);
+}
+
+.btn-save-score--saved {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+.btn-save-score--saved:hover {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+/* Reuse in Standings / Public */
+.match-item .score {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+.match-item .pending {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ============================================================
+   Standings
+   ============================================================ */
+.standings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.standings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.standings-block {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.standings-pool-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--navy);
+  gap: 12px;
+}
+
+.standings-pool-header h3 {
+  color: #fff;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.standings-legend {
+  font-size: .75rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .88rem;
+}
+
+.standings-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.standings-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-head);
+}
+
+.standings-table tr:last-child td { border-bottom: none; }
+
+.standings-leader td {
+  background: #fff7ed;
+  font-weight: 600;
+}
+
+.standings-leader td:first-child {
+  color: var(--orange);
+}
+
+.rank-cell {
+  color: var(--text-muted);
+  font-weight: 600;
+  width: 28px;
+}
+
+.team-cell { font-weight: 600; }
+
+.pts-cell {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.diff-pos { color: var(--success); font-weight: 600; }
+.diff-neg { color: var(--danger); font-weight: 600; }
+
+/* Results */
+.results-section,
+.pending-section {
+  border-top: 1.5px solid var(--border);
+  padding: 14px 20px;
+}
+
+.results-section h4,
+.pending-section h4 {
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .88rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-row:last-child { border-bottom: none; }
+
+.result-row--pending {
+  opacity: .7;
+}
+
+.result-time {
+  font-size: .75rem;
+  color: var(--orange);
+  font-weight: 600;
+  min-width: 40px;
+  flex-shrink: 0;
+}
+
+.result-team {
+  flex: 1;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-team-right {
+  text-align: right;
+}
+
+.result-winner {
+  font-weight: 700;
+  color: var(--text-head);
+}
+
+.result-score {
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--navy);
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.result-score--pending {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: .85rem;
+}
+
+/* ============================================================
+   Public Tournament View
+   ============================================================ */
+.public-tournament {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.public-tournament .tournament-header {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 14px;
+  padding: 24px 28px;
+  text-align: center;
+}
+
+.public-tournament .tournament-header h1 {
+  color: #fff;
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+
+.public-tournament .tournament-header p {
+  color: #94a3b8;
+  font-size: .9rem;
+}
+
+.pools-section h2 {
+  margin-bottom: 14px;
+}
+
+.pools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ============================================================
+   Score Input
+   ============================================================ */
+.score-input {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  max-width: 380px;
+}
+
+.score-input .teams {
+  display: flex;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.score-input .team {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.score-input .team-name {
+  font-weight: 600;
+  font-size: .9rem;
+  text-align: center;
+}
+
+.score-input .score-field {
+  width: 72px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 8px;
+}
+
+.score-input .overtime {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .88rem;
+  margin-bottom: 14px;
+}
+
+.score-input .overtime input {
+  width: auto;
+}
+
+/* ============================================================
+   Standings — qualifiés et forfait
+   ============================================================ */
+.standings-qualified td {
+  background: #f0fdf4;
+}
+
+.standings-qualified .rank-cell {
+  color: var(--success);
+}
+
+.qualified-tag {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 700;
+  color: #16a34a;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: 20px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+.result-forfeit-badge,
+.result-ot-badge {
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 3px;
+}
+
+.result-forfeit-badge {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.result-ot-badge {
+  background: #fef9c3;
+  color: #92400e;
+}
+
+/* ============================================================
+   Match Scheduler — forfait et overtime
+   ============================================================ */
+.match-card--forfeit {
+  border-left: 3px solid var(--danger);
+}
+
+.match-overtime-row {
+  display: flex;
+  align-items: center;
+}
+
+.overtime-check-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin: 0;
+}
+
+.overtime-check-label input {
+  width: auto;
+}
+
+.match-save-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.forfeit-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-forfeit {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1.5px solid #fca5a5;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: .72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+  white-space: nowrap;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-forfeit:hover {
+  background: #fee2e2;
+}
+
+.forfeit-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+.score-display {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-head);
+  min-width: 24px;
+  text-align: center;
+  justify-content: center;
+}
+
+.match-ot-label {
+  font-size: .73rem;
+  color: #92400e;
+  background: #fef9c3;
+  border-radius: 4px;
+  padding: 2px 8px;
+  text-align: center;
+}
+
+.scheduler-all-done {
+  font-size: .82rem;
+  color: #16a34a;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.form-hint {
+  font-size: .75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Modal de confirmation forfait */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 28px 32px;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,.2);
+}
+
+.modal-box h3 {
+  margin-bottom: 12px;
+}
+
+.modal-box p {
+  font-size: .9rem;
+  color: var(--text);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ============================================================
+   Elimination Bracket
+   ============================================================ */
+.elimination-bracket {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bracket-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bracket-subtitle {
+  font-size: .85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: .82rem;
+}
+
+.bracket-warning {
+  background: #fef9c3;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: .88rem;
+  color: #92400e;
+}
+
+/* Bannière champion */
+.champion-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-radius: 14px;
+  padding: 20px 28px;
+  color: #fff;
+}
+
+.champion-trophy {
+  font-size: 2.8rem;
+  flex-shrink: 0;
+}
+
+.champion-label {
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #FFE66D;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.champion-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* Setup du tableau */
+.bracket-setup {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 520px;
+}
+
+.bracket-setup h3 {
+  margin: 0;
+}
+
+.bracket-config {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bracket-config label {
+  margin: 0;
+}
+
+.bracket-config select {
+  max-width: 300px;
+}
+
+.bracket-qualified-preview {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: .88rem;
+  color: var(--text-muted);
+}
+
+/* Équipes qualifiées */
+.bracket-qualified {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+
+.bracket-qualified h4 {
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.qualified-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qualified-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .88rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.qualified-item:last-child { border-bottom: none; }
+
+.qualified-seed {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--orange);
+  min-width: 28px;
+}
+
+.qualified-team {
+  font-weight: 600;
+  color: var(--text-head);
+  flex: 1;
+}
+
+.qualified-pool {
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+
+/* Podium champion / 3ème */
+.bracket-podium {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.podium-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 14px;
+  padding: 18px 24px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.podium-item--gold {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: #fff;
+}
+
+.podium-item--bronze {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  color: var(--text-head);
+}
+
+.podium-medal {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+}
+
+.podium-rank {
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  opacity: .75;
+  margin-bottom: 2px;
+}
+
+.podium-item--gold .podium-rank { color: #FFE66D; opacity: 1; }
+
+.podium-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+/* Setup bracket */
+.bracket-setup-info {
+  font-size: .9rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.bracket-config-info {
+  font-size: .83rem;
+  color: var(--text-muted);
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+
+.bracket-config-warn {
+  color: var(--danger);
+}
+
+/* Phase header */
+.bracket-phase-header {
+  border-left: 4px solid var(--orange);
+  padding-left: 12px;
+  margin-bottom: 14px;
+}
+
+.bracket-phase-title {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text-head);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin: 0;
+}
+
+/* Phases du bracket */
+.bracket-phases {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.bracket-matches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.bracket-match-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.bracket-match-card:hover { box-shadow: var(--shadow); }
+
+.bracket-match--done    { border-left: 4px solid var(--success); }
+.bracket-match--pending { opacity: .65; border-style: dashed; }
+
+.bracket-match-label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* Lignes équipes */
+.bracket-teams {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bt-team-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--bg);
+  transition: background var(--transition);
+}
+
+.bt-team-row + .bt-team-row {
+  border-top: 1px solid var(--border);
+}
+
+.bt-team-row--winner {
+  background: #dcfce7;
+}
+
+.bt-team-row--tbd {
+  opacity: .5;
+  font-style: italic;
+}
+
+.bt-team-name {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text-head);
+  flex: 1;
+}
+
+.bt-team-row--tbd .bt-team-name {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.bt-team-score {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--navy);
+  min-width: 28px;
+  text-align: right;
+}
+
+.bt-team-score--winner { color: #16a34a; }
+
+.bracket-divider {
+  height: 0;
+}
+
+.bracket-ot-badge {
+  font-size: .73rem;
+  color: #92400e;
+  background: #fef9c3;
+  border-radius: 4px;
+  padding: 2px 8px;
+  text-align: center;
+}
+
+.bracket-awaiting {
+  font-size: .78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  margin: 0;
+}
+
+/* Saisie du score dans le bracket */
+.bracket-score-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1.5px solid var(--border);
+}
+
+.bracket-score-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bt-input-team {
+  font-size: .76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bt-input-team--right { text-align: right; }
+
+.bracket-overtime-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin: 0;
+}
+
+.bracket-overtime-check input { width: auto; }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 600px) {
+  .app-container { padding: 0 12px 40px; }
+  .tournaments-grid { grid-template-columns: 1fr; }
+  .teams-list { grid-template-columns: 1fr; }
+  .pools-grid { grid-template-columns: 1fr; }
+  .page-header { padding: 18px; }
+  .tabs button { padding: 8px 10px; font-size: .82rem; }
+  .add-team { flex-direction: column; }
 }

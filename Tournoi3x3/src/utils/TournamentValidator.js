@@ -11,11 +11,11 @@ import {
  * Valide une équipe selon le type de tournoi
  * Retourne { valid: boolean, error?: string }
  */
-export function validateTeamForTournamentType(team, tournamentType) {
+export function validateTeamForTournamentType(team, tournamentType, { checkPlayerCount = false } = {}) {
   const config = getTournamentTypeConfig(tournamentType);
 
-  // Vérifier que l'équipe a le nombre minimum de joueurs
-  if (team.players.length < config.minPlayersPerTeam) {
+  // Le nombre de joueurs n'est vérifié qu'au lancement du tournoi, pas à l'inscription
+  if (checkPlayerCount && team.players.length < config.minPlayersPerTeam) {
     return {
       valid: false,
       error: `L'équipe doit avoir au minimum ${config.minPlayersPerTeam} joueurs. Actuellement: ${team.players.length}`,
@@ -84,7 +84,8 @@ export function validateAllTeamsForTournament(tournament) {
   for (const team of tournament.teams) {
     const validation = validateTeamForTournamentType(
       team,
-      tournament.tournamentType
+      tournament.tournamentType,
+      { checkPlayerCount: true }
     );
     if (!validation.valid) {
       errors.push({

@@ -45,18 +45,20 @@ export const TOURNAMENT_TYPE_CONFIG = {
   
   family: {
     name: "Tournoi des Familles",
-    description: "Format casual et accessible pour tous",
+    description: "Format familial — 3 sur le terrain, jusqu'à 6 inscrits, esprit fair-play",
     minTeams: 2,
     maxTeams: 24,
-    minPlayersPerTeam: 2,
-    gameDuration: 8,
-    maxScore: 15,
+    minPlayersPerTeam: 3,
+    maxPlayersPerTeam: 6,
+    gameDuration: 7,           // 7 minutes par match (règlement Benet Basket)
+    maxScore: 21,              // Première équipe à 21 points gagne
     shotClock: 12,
-    allowOvertime: false,
-    winPoints: 1,
-    lossPoints: 0,
+    allowOvertime: true,       // Sudden death jusqu'à +2 points si égalité à la sirène
+    winPoints: 2,              // Victoire = 2 pts
+    lossPoints: 1,             // Défaite = 1 pt
+    forfeitPoints: 0,          // Forfait = 0 pt
     requireGenderValidation: false,
-    genderRule: "none", // pas de validation
+    genderRule: "none",
     color: "#FFE66D",
   },
 };

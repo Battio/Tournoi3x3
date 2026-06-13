@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getTournamentById } from "../../../../tournoi3x3/src/controllers/tournamentController";
-import { getPools } from "../../../../tournoi3x3/src/controllers/poolController";
-import { getMatchesByTournament } from "../../../../tournoi3x3/src/controllers/matchController";
-import { calculateStandings } from "../../../../tournoi3x3/src/utils/standings";
+import { getTournamentById } from "../../controllers/tournamentController";
+import { getPools } from "../../controllers/poolController";
+import { getMatchesByTournament } from "../../controllers/matchController";
+import { calculateStandings } from "../../utils/standings";
 
 export default function PublicTournament({ tournamentId }) {
   const [tournament, setTournament] = useState(null);

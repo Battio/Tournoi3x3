@@ -96,6 +96,21 @@ export function removeTeamFromPool(tournamentId, poolId, teamId) {
 }
 
 /**
+ * Sauvegarde directement une liste de poules pour un tournoi
+ */
+export function savePoolsForTournament(tournamentId, pools) {
+  const tournaments = getAllTournaments();
+  const tournament = tournaments.find(t => t.id === tournamentId);
+
+  if (!tournament) return null;
+
+  tournament.pools = pools;
+
+  saveTournaments(tournaments);
+  return pools;
+}
+
+/**
  * Supprime toutes les poules d'un tournoi
  */
 export function clearPools(tournamentId) {

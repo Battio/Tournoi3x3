@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { getTournamentById } from "../controllers/tournamentController";
-import { savePoolsForTournament } from "../controllers/poolController";
-import { generatePools } from "../utils/poolGenerator";
-import Pool from "../models/Pool";
-import { generateTypedId } from "../utils/idGenerator";
+import { getTournamentById } from "../../controllers/tournamentController";
+import { savePoolsForTournament } from "../../controllers/poolController";
+import { generatePools } from "../../utils/poolGenerator";
+import Pool from "../../models/Pool";
+import { generateTypedId } from "../../utils/idGenerator";
 
 export default function PoolGenerator({ tournamentId, onPoolsGenerated }) {
   const [tournament, setTournament] = useState(() => getTournamentById(tournamentId));

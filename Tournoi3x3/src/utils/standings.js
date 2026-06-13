@@ -37,19 +37,18 @@ export function calculateStandings(teams, matches, settings) {
       rowA.diff = rowA.scored - rowA.conceded;
       rowB.diff = rowB.scored - rowB.conceded;
 
-      // Victoire / défaite
+      // Victoire / défaite (avec gestion forfait : 0 pt)
+      const forfeitPoints = settings.forfeitPoints ?? 0;
       if (match.scoreA > match.scoreB) {
         rowA.wins++;
         rowB.losses++;
-
         rowA.points += settings.winPoints;
-        rowB.points += settings.lossPoints;
+        rowB.points += match.forfeitTeam === rowB.team.id ? forfeitPoints : settings.lossPoints;
       } else {
         rowB.wins++;
         rowA.losses++;
-
         rowB.points += settings.winPoints;
-        rowA.points += settings.lossPoints;
+        rowA.points += match.forfeitTeam === rowA.team.id ? forfeitPoints : settings.lossPoints;
       }
     });
 

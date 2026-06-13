@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
-  getAllTournaments,
+  getTournaments as getAllTournaments,
   deleteTournament,
-} from "../../../../tournoi3x3/src/controllers/tournamentController";
+} from "../../controllers/tournamentController";
 
 export default function TournamentList({ onSelectTournament, onCreateTournament }) {
   const [tournaments, setTournaments] = useState([]);

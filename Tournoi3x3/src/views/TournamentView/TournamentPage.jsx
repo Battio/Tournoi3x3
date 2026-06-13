@@ -4,10 +4,11 @@ import { TOURNAMENT_TYPE_CONFIG } from "../../models/TournamentType";
 
 import TournamentForm from "./TournamentForm";
 import TeamManager from "../TeamView/TeamManager";
-import PoolGenerator from "../../utils/poolGenerator";
+import PoolGenerator from "../PoolView/PoolGenerator";
 import MatchScheduler from "../MatchView/MatchScheduler";
 import Standings from "../StandingsView/Standings";
 import PublicTournament from "../PublicView/PublicTournament";
+import EliminationBracket from "../EliminationView/EliminationBracket";
 
 export default function TournamentPage({ tournamentId, onBack }) {
   const [tournament, setTournament] = useState(null);
@@ -90,6 +91,13 @@ export default function TournamentPage({ tournamentId, onBack }) {
         </button>
 
         <button
+          className={activeTab === "bracket" ? "active" : ""}
+          onClick={() => setActiveTab("bracket")}
+        >
+          🏆 Tableau final
+        </button>
+
+        <button
           className={activeTab === "public" ? "active" : ""}
           onClick={() => setActiveTab("public")}
         >
@@ -112,11 +120,15 @@ export default function TournamentPage({ tournamentId, onBack }) {
         )}
 
         {activeTab === "matches" && (
-          <MatchScheduler tournamentId={tournamentId} />
+          <MatchScheduler tournamentId={tournamentId} onScoresUpdated={refresh} />
         )}
 
         {activeTab === "standings" && (
           <Standings tournamentId={tournamentId} />
+        )}
+
+        {activeTab === "bracket" && (
+          <EliminationBracket tournamentId={tournamentId} onBracketUpdated={refresh} />
         )}
 
         {activeTab === "public" && (
