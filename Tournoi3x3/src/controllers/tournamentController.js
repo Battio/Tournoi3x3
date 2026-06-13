@@ -2,6 +2,7 @@ import localStorageService from "../storage/localStorageService";
 import Settings from "../models/Settings";
 import { validateTournamentReady } from "../utils/TournamentValidator";
 import { isValidTournamentType } from "../models/TournamentType";
+import { generateTypedId } from "../utils/idGenerator";
 
 /**
  * Récupère tous les tournois depuis le stockage local
@@ -38,6 +39,7 @@ export function createTournament(tournament) {
 
   const newTournament = {
     ...tournament,
+    id: tournament.id || generateTypedId("tournament"),
     tournamentType: tournament.tournamentType || "official",
     teams: [],
     pools: [],
