@@ -12,17 +12,26 @@ const SLOT_MINUTES = 10;
 const START_HOUR = 9;
 const START_MINUTE = 30; // Arrivée 9h00, matchs à partir de 9h30
 
-// Réordonne les matchs pour qu'une même équipe ne joue pas deux fois de suite
-function avoidBackToBack(matches) {
+// Nombre de créneaux de repos minimum entre deux apparitions de la même équipe
+const REST_WINDOW = 2;
+
+// Réordonne les matchs pour respecter la contrainte de repos :
+// une équipe ne peut pas rejouer si elle a joué dans les REST_WINDOW créneaux précédents.
+function scheduleWithRest(matches) {
   if (matches.length <= 1) return matches;
 
-  const result = [matches[0]];
-  const remaining = matches.slice(1);
+  const result = [];
+  const remaining = [...matches];
 
   while (remaining.length > 0) {
-    const last = result[result.length - 1];
-    const busyIds = new Set([last.teamA.id, last.teamB.id]);
+    // Équipes ayant joué dans les REST_WINDOW derniers créneaux → doivent se reposer
+    const busyIds = new Set();
+    for (let i = Math.max(0, result.length - REST_WINDOW); i < result.length; i++) {
+      busyIds.add(result[i].teamA.id);
+      busyIds.add(result[i].teamB.id);
+    }
 
+    // Chercher le premier match où les deux équipes sont disponibles
     const nextIdx = remaining.findIndex(
       (m) => !busyIds.has(m.teamA.id) && !busyIds.has(m.teamB.id)
     );
@@ -30,7 +39,16 @@ function avoidBackToBack(matches) {
     if (nextIdx !== -1) {
       result.push(remaining.splice(nextIdx, 1)[0]);
     } else {
-      result.push(remaining.shift());
+      // Contrainte impossible à satisfaire (poule trop petite ou fin de planning) — placement au mieux
+      console.warn(
+        `[scheduleWithRest] Repos de ${REST_WINDOW} créneaux impossible au créneau ${result.length}` +
+        ` — placement au mieux (équipes disponibles insuffisantes)`
+      );
+      // Au moins une équipe disponible (violation minimale)
+      const partialIdx = remaining.findIndex(
+        (m) => !(busyIds.has(m.teamA.id) && busyIds.has(m.teamB.id))
+      );
+      result.push(remaining.splice(partialIdx !== -1 ? partialIdx : 0, 1)[0]);
     }
   }
 
@@ -56,7 +74,7 @@ function buildSchedule(pools, tournamentDate) {
   const allMatches = [];
 
   Object.entries(courtBuckets).forEach(([, matches]) => {
-    const ordered = avoidBackToBack(matches);
+    const ordered = scheduleWithRest(matches);
     ordered.forEach((match, slotIdx) => {
       const t = new Date(base);
       t.setHours(START_HOUR, START_MINUTE + slotIdx * SLOT_MINUTES, 0, 0);

@@ -25,8 +25,8 @@ const PHASE_ORDER = [
   "CLASSEMENT_7",
   "CLASSEMENT_9",
   "CLASSEMENT_11",
-  "LOWER_T3",     // Classement 9e-14e · Tour 3 (match F, départage 12e/13e)
   "CLASSEMENT_13",
+  "LOWER_T3",     // n=5 uniquement : Tour 3 match F (départage 12e/13e)
   "CLASSEMENT_15",
   "FINALE",
 ];
@@ -43,13 +43,18 @@ const PHASE_META = {
   CLASSEMENT_3:   { label: "Petite finale — 3ème place",          accent: "#94a3b8" },
   CLASSEMENT_5:   { label: "Match pour la 5ème place",            accent: "#78716c" },
   CLASSEMENT_7:   { label: "Match pour la 7ème place",            accent: "#a8a29e" },
-  CLASSEMENT_9:   { label: "Match pour la 9ème place",            accent: "#7c3aed" },
-  CLASSEMENT_11:  { label: "Match pour la 11ème place",           accent: "#9ca3af" },
+  CLASSEMENT_9:   { label: "Match 9ème/10ème place",              accent: "#7c3aed" },
+  CLASSEMENT_11:  { label: "Match 11ème/12ème place",             accent: "#9ca3af" },
   LOWER_T3:       { label: "Classement 9e-14e · Tour 3 — Départage 12e/13e", accent: "#7c3aed" },
-  CLASSEMENT_13:  { label: "Match pour la 13ème place",           accent: "#d1d5db" },
+  CLASSEMENT_13:  { label: "Match 13ème/14ème place",             accent: "#d1d5db" },
   CLASSEMENT_15:  { label: "Match pour la 15ème place",           accent: "#e5e7eb" },
   FINALE:         { label: "Finale",                              accent: "#eab308" },
 };
+
+function fmt(iso) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+}
 
 function TeamRow({ team, score, isWinner, isFinished }) {
   return (
@@ -74,6 +79,7 @@ export default function EliminationBracket({ tournamentId, onBracketUpdated }) {
   const [elimMatches, setElimMatches]   = useState([]);
   const [qualified, setQualified]       = useState([]);
   const [teamsPerPool, setTeamsPerPool] = useState(4);
+  const [maxTeams, setMaxTeams]         = useState(4);
   const [scores, setScores]             = useState({});
   const [saved, setSaved]               = useState({});
   const [allPoolsDone, setAllPoolsDone] = useState(false);
@@ -95,7 +101,8 @@ export default function EliminationBracket({ tournamentId, onBracketUpdated }) {
 
         // Défaut intelligent : toutes les équipes de la plus grande poule
         const maxPerPool = getMaxTeamsPerPool(tournamentId);
-        setTeamsPerPool(prev => prev === 4 ? maxPerPool : prev);
+        setMaxTeams(maxPerPool);
+        setTeamsPerPool(prev => prev === 4 || prev > maxPerPool ? maxPerPool : prev);
 
         const initScores = {};
         elims.forEach(m => {
@@ -179,6 +186,14 @@ export default function EliminationBracket({ tournamentId, onBracketUpdated }) {
   });
   const phases = PHASE_ORDER.filter(p => matchesByPhase[p]);
 
+  // Nombre réel d'équipes qualifiées (tient compte des poules de taille inégale)
+  const actualQualified    = getQualifiedTeams(tournamentId, teamsPerPool);
+  const actualTotalQ       = actualQualified.length;
+  const lowerBracketCount  = Math.max(0, actualTotalQ - 8);
+
+  // Détecter si le bracket généré n'a pas de phase de classement 9e+
+  const hasLowerBracket = phases.some(p => p.startsWith("LOWER_") || p.startsWith("CLASSEMENT_9") || p.startsWith("CLASSEMENT_11") || p.startsWith("CLASSEMENT_13"));
+
   // ── Helpers ─────────────────────────────────────────────────────────────────
   const isFinishedMatch = (m) => m?.scoreA !== null && m?.scoreB !== null && m?.teamA && m?.teamB;
   const getWinner = (m) => isFinishedMatch(m) ? (m.scoreA > m.scoreB ? m.teamA : m.teamB) : null;
@@ -223,7 +238,7 @@ export default function EliminationBracket({ tournamentId, onBracketUpdated }) {
   const eleventhPlace = getWinner(matchD_11_12) || getWinner(eleventhMatchG);
   const twelfthPlace  = getWinner(lowerT3Match) || getLoser(eleventhMatchG);
   const thirteenthPlace = getLoser(lowerT3Match) || getWinner(thirteenthMatchG);
-  const fourteenthPlace = getLoser(matchA_13_14);
+  const fourteenthPlace = getLoser(thirteenthMatchG) || getLoser(matchA_13_14);
   const fifteenthPlace  = getWinner(fifteenthMatchG);
   const sixteenthPlace  = getLoser(fifteenthMatchG);
 
@@ -344,16 +359,38 @@ export default function EliminationBracket({ tournamentId, onBracketUpdated }) {
               value={teamsPerPool}
               onChange={e => setTeamsPerPool(parseInt(e.target.value, 10))}
             >
-              <option value={1}>1 équipe — le 1er de chaque poule ({poolCount * 1} qualifié{poolCount > 1 ? "s" : ""})</option>
-              <option value={2}>2 équipes — 1er et 2ème ({poolCount * 2} qualifiés)</option>
-              <option value={3}>3 équipes — les 3 premiers ({poolCount * 3} qualifiés)</option>
-              <option value={4}>4 équipes — les 4 premiers ({poolCount * 4} qualifiés) ✓ règlement</option>
+              {Array.from({ length: maxTeams }, (_, i) => i + 1).map(n => (
+                <option key={n} value={n}>
+                  {n} équipe{n > 1 ? "s" : ""} par poule —{" "}
+                  {n === 1 ? "les 1ers" :
+                   n === 2 ? "1ers et 2èmes" :
+                   n === 3 ? "les 3 premiers" :
+                   n === 4 ? "les 4 premiers ✓ règlement" :
+                   `les ${n} premiers`}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="bracket-config-info">
-            <span>{getFormatLabel(totalQualified)}</span>
-            {totalQualified < 2 && (
+            <span>
+              <strong>{actualTotalQ} équipes réellement qualifiées</strong>
+              {actualTotalQ !== poolCount * teamsPerPool && (
+                <span className="bracket-config-warn"> (poules de taille inégale)</span>
+              )}
+            </span>
+            <span>{getFormatLabel(actualTotalQ)}</span>
+            {lowerBracketCount > 0 && (
+              <span className="bracket-config-lower">
+                → Bracket 9e-{8 + lowerBracketCount}e : {lowerBracketCount} équipe{lowerBracketCount > 1 ? "s" : ""}
+              </span>
+            )}
+            {lowerBracketCount === 0 && actualTotalQ >= 2 && (
+              <span className="bracket-config-warn">
+                ⚠️ Aucun bracket de classement (9e+). Il faut ≥ 10 équipes qualifiées au total.
+              </span>
+            )}
+            {actualTotalQ < 2 && (
               <span className="bracket-config-warn"> ⚠️ Il faut au moins 2 équipes qualifiées</span>
             )}
           </div>
@@ -361,7 +398,7 @@ export default function EliminationBracket({ tournamentId, onBracketUpdated }) {
           <button
             className="btn-primary"
             onClick={handleGenerate}
-            disabled={totalQualified < 2}
+            disabled={actualTotalQ < 2}
           >
             Générer le tableau final
           </button>
@@ -383,6 +420,15 @@ export default function EliminationBracket({ tournamentId, onBracketUpdated }) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Avertissement : bracket généré sans classement 9e+ */}
+      {hasMatches && !hasLowerBracket && (
+        <div className="bracket-warning">
+          ⚠️ Aucun match de classement (9e place et au-delà) n'est généré.
+          Pour les obtenir, réinitialise et régénère le tableau en qualifiant
+          plus d'équipes par poule (minimum 10 équipes qualifiées au total).
         </div>
       )}
 
@@ -421,6 +467,20 @@ export default function EliminationBracket({ tournamentId, onBracketUpdated }) {
                         {match.matchLabel && (
                           <div className="bracket-match-label" style={{ color: meta.accent }}>
                             {match.matchLabel}
+                          </div>
+                        )}
+
+                        {/* Horaire et terrain */}
+                        {(match.startTime || match.court) && (
+                          <div className="bracket-match-time">
+                            {match.startTime && (
+                              <span className="match-time">{fmt(match.startTime)}</span>
+                            )}
+                            {match.court && (
+                              <span className="bracket-match-court">
+                                Terrain {match.court}
+                              </span>
+                            )}
                           </div>
                         )}
 

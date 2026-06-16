@@ -4,7 +4,7 @@ import {
   deleteTournament,
 } from "../../controllers/tournamentController";
 
-export default function TournamentList({ onSelectTournament, onCreateTournament }) {
+export default function TournamentList({ onSelectTournament, onCreateTournament, onReset }) {
   const [tournaments, setTournaments] = useState([]);
   const [error, setError] = useState("");
 
@@ -49,6 +49,14 @@ export default function TournamentList({ onSelectTournament, onCreateTournament 
 
       {tournaments.length === 0 && !error && (
         <p>Aucun tournoi pour le moment.</p>
+      )}
+
+      {onReset && (
+        <div className="reset-section">
+          <button className="btn-danger" onClick={onReset}>
+            🗑️ Réinitialiser le tournoi
+          </button>
+        </div>
       )}
 
       <div className="tournaments-grid">

@@ -2,6 +2,63 @@ import localStorageService from "../storage/localStorageService";
 import { calculateStandings } from "../utils/standings";
 import { generateTypedId } from "../utils/idGenerator";
 
+// Durée d'un créneau en minutes et nombre de terrains pour les phases finales
+const ELIM_SLOT_MIN = 15;
+const ELIM_COURTS   = 2;
+// Heure fixe de début des phases finales (15h00)
+const ELIM_START_HOUR = 15;
+
+// Numéro de round pour chaque phase (phases du même round se jouent en parallèle)
+// Round 1 : QF et Tour 1 des classements
+// Round 2 : Demis et Tour 2 des classements (LOWER_T2 parallèle aux DEMI)
+// Round 3 : Classements 3e/5e/7e + LOWER_T3 + LOWER_CONSOL
+// Round 4 : Classements 9e/11e/13e/15e
+// Round 5 : Finale
+const ELIM_PHASE_ROUND = {
+  QUART:         1, LOWER_T1:     1, LOWER_QF:      1,
+  DEMI:          2, LOWER_SF:     2, CONSOL_SF:      2, LOWER_T2:     2,
+  LOWER_CONSOL:  3, CLASSEMENT_3: 3, CLASSEMENT_5:  3, CLASSEMENT_7: 3, LOWER_T3: 3,
+  CLASSEMENT_9:  4, CLASSEMENT_11:4, CLASSEMENT_13: 4, CLASSEMENT_15:4,
+  FINALE:        5,
+};
+
+/**
+ * Assigne court + startTime à chaque match d'élimination.
+ * Les matchs du même round sont répartis sur ELIM_COURTS terrains en parallèle.
+ */
+function scheduleEliminationMatches(matches, startISO) {
+  const hasQF = matches.some(m => m.phase === "QUART");
+  const phaseRound = { ...ELIM_PHASE_ROUND };
+  if (!hasQF) {
+    // n ≤ 4 : pas de quarts → les demis sont le premier round
+    phaseRound.DEMI          = 1;
+    phaseRound.CLASSEMENT_3  = 2;
+    phaseRound.FINALE        = 2;
+  }
+
+  const byRound = {};
+  matches.forEach(m => {
+    const r = phaseRound[m.phase] ?? 99;
+    if (!byRound[r]) byRound[r] = [];
+    byRound[r].push(m);
+  });
+
+  const rounds = Object.keys(byRound).map(Number).sort((a, b) => a - b);
+  let currentMs = new Date(startISO).getTime();
+
+  rounds.forEach(round => {
+    const rMatches = byRound[round];
+    rMatches.forEach((m, idx) => {
+      m.court     = (idx % ELIM_COURTS) + 1;
+      m.startTime = new Date(
+        currentMs + Math.floor(idx / ELIM_COURTS) * ELIM_SLOT_MIN * 60000
+      ).toISOString();
+    });
+    const slots = Math.ceil(rMatches.length / ELIM_COURTS);
+    currentMs += slots * ELIM_SLOT_MIN * 60000;
+  });
+}
+
 function getAllTournaments() {
   return localStorageService.get("tournaments") || [];
 }
@@ -163,38 +220,66 @@ function buildLowerBracket(seeds) {
     return lm;
   }
 
-  /* ── n=6 : 6 équipes (9e-14e), structure en 3 tours ──────────────────────
-   * Tour 1 : Match A (13e vs 14e) — perdant=14e définitif
-   *          Match B (9e  vs 12e) — demi-finale
-   *          Match C (10e vs 11e) — demi-finale
-   * Tour 2 : Match D (perd.B vs perd.C) → 11e/12e provisoire
-   *          Match E (gagl.B vs gagl.C) → 9e définitif / 10e définitif
-   * Tour 3 : Match F (perd.D vs gagl.A) → gagl=12e définitif · perd=13e définitif
+  /* ── n=6 : 6 équipes (9e-14e) issues de 2 poules ────────────────────────────
+   * ls[0]=5e/A · ls[1]=5e/B · ls[2]=6e/A · ls[3]=6e/B · ls[4]=7e/A · ls[5]=7e/B
    *
-   * Classement final : 9e=gagl.E · 10e=perd.E · 11e=gagl.D
-   *                    12e=gagl.F · 13e=perd.F · 14e=perd.A
+   * Tour 1 — croisement 6e/7e (les 5e ont un bye) :
+   *   Match 1 : 6e/A  vs 7e/B   (ls[2] vs ls[5])
+   *   Match 2 : 7e/A  vs 6e/B   (ls[4] vs ls[3])
+   *   ✗ Perdants → Match 13e/14e
+   *   ✓ Gagnants → Tour 2
+   *
+   * Tour 2 — demi-finales de classement :
+   *   Demi 1 : Gagl.M1 vs 5e/B   (gagnant match 1 rejoint ls[1])
+   *   Demi 2 : Gagl.M2 vs 5e/A   (gagnant match 2 rejoint ls[0])
+   *   ✗ Perdants → Match 11e/12e
+   *   ✓ Gagnants → Match 9e/10e
+   *
+   * Tour 3 — 3 matchs en parallèle :
+   *   CLASSEMENT_13 : Perd.M1 vs Perd.M2
+   *   CLASSEMENT_11 : Perd.Demi1 vs Perd.Demi2
+   *   CLASSEMENT_9  : Gagl.Demi1 vs Gagl.Demi2
+   *
+   * Classement final : 9e=gagl.C9 · 10e=perd.C9 · 11e=gagl.C11 · 12e=perd.C11
+   *                    13e=gagl.C13 · 14e=perd.C13
    */
   if (nl === 6) {
-    const mA = makeMatch(ls[4], ls[5], "LOWER_T1", "Tour 1 · Match A — Classement 13e/14e",
-      null, null, null, null, "✓ Gagnant → Match F  ✗ Perdant → 14e définitif");
-    const mB = makeMatch(ls[0], ls[3], "LOWER_T1", "Tour 1 · Match B — Demi-finale 9e/12e",
-      null, null, null, null, "✓ Gagnant → Match E (9e/10e)  ✗ Perdant → Match D (11e/12e)");
-    const mC = makeMatch(ls[1], ls[2], "LOWER_T1", "Tour 1 · Match C — Demi-finale 10e/11e",
-      null, null, null, null, "✓ Gagnant → Match E (9e/10e)  ✗ Perdant → Match D (11e/12e)");
+    // Tour 1 : croisement des 6e et 7e de chaque poule
+    const m1 = makeMatch(ls[2], ls[5], "LOWER_T1",
+      "Tour 1 · Match 1 — 6e/A vs 7e/B",
+      null, null, null, null,
+      "✓ Gagnant → Demi vs 5e/B   ✗ Perdant → Match 13e/14e");
 
-    const mD = makeMatch(null, null, "LOWER_T2", "Tour 2 · Match D — Classement 11e/12e",
-      null, null, mB.id, mC.id,
-      "✓ Gagnant → 11e définitif  ✗ Perdant → Match F");
-    const mE = makeMatch(null, null, "LOWER_T2", "Tour 2 · Match E — Classement 9e/10e",
-      mB.id, mC.id, null, null,
-      "✓ Gagnant → 9e définitif  ✗ Perdant → 10e définitif");
+    const m2 = makeMatch(ls[4], ls[3], "LOWER_T1",
+      "Tour 1 · Match 2 — 7e/A vs 6e/B",
+      null, null, null, null,
+      "✓ Gagnant → Demi vs 5e/A   ✗ Perdant → Match 13e/14e");
 
-    // Match F : Perdant D (loserDependsOnA) vs Gagnant A (dependsOnB)
-    const mF = makeMatch(null, null, "LOWER_T3", "Tour 3 · Match F — Départage 12e/13e",
-      null, mA.id, mD.id, null,
-      "✓ Gagnant → 12e définitif  ✗ Perdant → 13e définitif");
+    // Tour 2 : demi-finales — gagnants du Tour 1 rejoignent les 5e (qui avaient un bye)
+    const sf1 = makeMatch(null, ls[1], "LOWER_T2",
+      "Demi-finale classement 1 — Gagl.M1 vs 5e/B",
+      m1.id, null, null, null,
+      "✓ Gagnant → Match 9e/10e   ✗ Perdant → Match 11e/12e");
 
-    lm.push(mA, mB, mC, mD, mE, mF);
+    const sf2 = makeMatch(null, ls[0], "LOWER_T2",
+      "Demi-finale classement 2 — Gagl.M2 vs 5e/A",
+      m2.id, null, null, null,
+      "✓ Gagnant → Match 9e/10e   ✗ Perdant → Match 11e/12e");
+
+    // Tour 3 : 3 matchs en parallèle — toutes les équipes jouent
+    const c13 = makeMatch(null, null, "CLASSEMENT_13",
+      "Match 13ème/14ème place",
+      null, null, m1.id, m2.id);
+
+    const c11 = makeMatch(null, null, "CLASSEMENT_11",
+      "Match 11ème/12ème place",
+      null, null, sf1.id, sf2.id);
+
+    const c9 = makeMatch(null, null, "CLASSEMENT_9",
+      "Match 9ème/10ème place",
+      sf1.id, sf2.id);
+
+    lm.push(m1, m2, sf1, sf2, c13, c11, c9);
     return lm;
   }
 
@@ -277,8 +362,9 @@ export function generateEliminationBracket(tournamentId, teamsPerPool = 1) {
   const n = qualified.length;
   if (n < 2) return null;
 
-  // Supprimer les anciens matchs d'élimination
-  tournament.matches = (tournament.matches || []).filter(m => m.phase === "POULE");
+  // Supprimer les anciens matchs d'élimination ; conserver les matchs de poule
+  // qu'ils aient le champ phase renseigné ou non (ancienne génération sans phase)
+  tournament.matches = (tournament.matches || []).filter(m => m.phase === "POULE" || !m.phase);
 
   const q = qualified;
   const newMatches = [];
@@ -388,6 +474,11 @@ export function generateEliminationBracket(tournamentId, teamsPerPool = 1) {
     const lm = buildLowerBracket(lowerSeeds, newMatches);
     lm.forEach(m => newMatches.push(m));
   }
+
+  // Les phases finales démarrent toujours à 15h00 le jour du tournoi
+  const base = tournament.date ? new Date(tournament.date) : new Date();
+  base.setHours(ELIM_START_HOUR, 0, 0, 0);
+  scheduleEliminationMatches(newMatches, base.toISOString());
 
   tournament.matches = [...tournament.matches, ...newMatches];
   tournament.qualifiedTeams = qualified;
